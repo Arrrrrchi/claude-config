@@ -21,6 +21,11 @@
       "Bash(curl *)",
       "Bash(wget *)",
       "Bash(chmod 777 *)",
+      "Bash(git push --force *)",
+      "Bash(git push origin main*)",
+      "Bash(git push origin master*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -fd*)",
       "Read(**/.env)",
       "Read(**/.env.local)",
       "Read(**/.env.development)",
@@ -28,10 +33,23 @@
       "Read(**/.env.staging)",
       "Read(**/.env.test)",
       "Read(**/.env.*.local)",
+      "Read(.env.*)",
       "Read(./secrets/**)",
       "Read(./config/credentials.json)",
       "Read(**/*.pem)",
-      "Read(**/*.key)"
+      "Read(**/*.key)",
+      "Read(credentials.json)",
+      "Read(secrets/**)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Edit(.env)",
+      "Edit(.env.*)",
+      "Edit(*.pem)",
+      "Edit(*.key)",
+      "Edit(credentials.json)",
+      "Edit(secrets/**)",
+      "Edit(~/.ssh/**)",
+      "Edit(~/.aws/**)"
     ],
     "ask": [],
     "additionalDirectories": [
@@ -67,6 +85,13 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"$HOME/.claude/hooks/block-dangerous.mjs\"",
+            "shell": "bash",
+            "timeout": 5,
+            "statusMessage": "Checking command safety..."
+          },
+          {
+            "type": "command",
             "command": "rtk-hook-custom"
           }
         ]
@@ -74,7 +99,10 @@
     ]
   },
   "enabledPlugins": {
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "example-skills@anthropic-agent-skills": true,
+    "document-skills@anthropic-agent-skills": false,
+    "playwright@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
@@ -101,5 +129,6 @@
   "tui": "fullscreen",
   "theme": "dark-daltonized",
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "skipDangerousModePermissionPrompt": true
 }

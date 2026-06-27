@@ -69,7 +69,7 @@ Example — `linting.md`:
 Do NOT suggest installing eslint, prettier, or creating .eslintrc / .prettierrc files.
 This project uses Biome for both linting and formatting.
 
-Run: `biome check --apply` to lint and format, or `biome format --write` for format only.
+Run: `biome check --fix` to lint and format, or `biome format --write` for format only.
 Config is in `biome.json`.
 ```
 
@@ -88,6 +88,8 @@ Valid types: feat, fix, chore, docs, refactor, test, ci, build, perf, style, rev
 ---
 
 ## Scoped Rule File (with paths: frontmatter)
+
+**⚠️ Do NOT emit scoped rule files until Phase 3a has verified the exact frontmatter key from the live docs.** The key name `paths:` used in the examples below is a placeholder guess and may not match the real spec. If Phase 3a confirms that `.claude/rules/*.md` has no path-scoping mechanism, collapse all rules to the global form (no frontmatter) instead.
 
 Use for rules that only apply when working with specific file paths.
 
@@ -147,7 +149,7 @@ Selector priority (Testing Library): getByRole > getByLabelText > getByText > ge
 
 ## .claude/settings.json Hooks Template
 
-Verify the exact structure by fetching `https://code.claude.com/docs/en/hooks` in Phase 3.
+Verify the exact structure by fetching `https://docs.claude.com/en/docs/claude-code/hooks` in Phase 3.
 
 Best-effort template (as of early 2025):
 
@@ -160,7 +162,7 @@ Best-effort template (as of early 2025):
         "hooks": [
           {
             "type": "command",
-            "command": "cd $CLAUDE_PROJECT_DIR && pnpm biome check --apply --no-errors-on-unmatched 2>/dev/null || true",
+            "command": "cd $CLAUDE_PROJECT_DIR && pnpm biome check --fix --no-errors-on-unmatched 2>/dev/null || true",
             "timeout": 10000
           }
         ]
@@ -174,17 +176,17 @@ Best-effort template (as of early 2025):
 
 **Biome (lint + format):**
 ```
-cd $CLAUDE_PROJECT_DIR && pnpm biome check --apply --no-errors-on-unmatched 2>/dev/null || true
+cd $CLAUDE_PROJECT_DIR && pnpm biome check --fix --no-errors-on-unmatched 2>/dev/null || true
 ```
 
 **ESLint:**
 ```
-cd $CLAUDE_PROJECT_DIR && npx eslint --fix $(echo $CLAUDE_TOOL_OUTPUT | jq -r '.path // empty') 2>/dev/null || true
+cd $CLAUDE_PROJECT_DIR && npx eslint --fix . 2>/dev/null || true
 ```
 
 **Prettier:**
 ```
-cd $CLAUDE_PROJECT_DIR && npx prettier --write $(echo $CLAUDE_TOOL_OUTPUT | jq -r '.path // empty') 2>/dev/null || true
+cd $CLAUDE_PROJECT_DIR && npx prettier --write . 2>/dev/null || true
 ```
 
 **Ruff (Python lint + format):**
@@ -204,6 +206,7 @@ cd $CLAUDE_PROJECT_DIR && ./vendor/bin/php-cs-fixer fix 2>/dev/null || true
 - Use `$CLAUDE_PROJECT_DIR` to ensure commands run from the project root
 - Set `timeout` to the typical worst-case run time for the tool (in milliseconds)
 - Only add hooks for tools that are in the project's actual dependencies — do not add ESLint hooks for a Biome project
+- Prefer project-wide idempotent commands over per-file commands. Do NOT shell out to `jq` or other external tools to parse a hook payload. If you need per-file targeting, verify the official stdin/env contract in Phase 3b (`https://docs.claude.com/en/docs/claude-code/hooks`) first — the variable name `$CLAUDE_TOOL_OUTPUT` is illustrative only and must be confirmed against the live spec before use
 
 ---
 

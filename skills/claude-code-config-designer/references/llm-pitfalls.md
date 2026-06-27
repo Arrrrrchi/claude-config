@@ -14,7 +14,7 @@ Each entry: **WRONG** (what the LLM will suggest) → **CORRECT** (what the proj
 
 **Biome users:**
 - WRONG: Suggest installing `eslint`, `prettier`, `.eslintrc.json`, `.prettierrc`
-- CORRECT: Project uses `biome.json` config, run `biome check --apply` or `biome format --write`
+- CORRECT: Project uses `biome.json` config, run `biome check --fix` or `biome format --write`
 - WHY: Biome replaces both ESLint and Prettier in one tool. LLMs default to the ESLint+Prettier combo.
 
 **Rome (legacy) → Biome:**
@@ -45,6 +45,31 @@ Each entry: **WRONG** (what the LLM will suggest) → **CORRECT** (what the proj
 - WRONG: Assume `fetch()` is cached by default (Next.js 13-14 behavior)
 - CORRECT: In Next.js 15, `fetch()` is no longer cached by default. Use `{ cache: 'force-cache' }` explicitly when caching is needed.
 - WHY: Breaking change in Next.js 15.
+
+**Next.js 16 — `next lint` removed:**
+- WRONG: Suggest running `next lint`, creating `.eslintrc` via `next lint --setup`, or using the `next/core-web-vitals` ESLint preset as the project's linter entry point
+- CORRECT: `next lint` is removed in Next.js 16. Run the project's linter directly (Biome, ESLint CLI, etc.)
+- WHY: Next.js 16 dropped the built-in lint wrapper; LLMs still default to `next lint`.
+
+**Next.js 16 — async Request APIs mandatory:**
+- WRONG: Access `params.foo`, `searchParams.bar`, `cookies().get(...)`, `headers().get(...)`, or `draftMode().isEnabled` synchronously
+- CORRECT: All of `params`, `searchParams`, `cookies()`, `headers()`, `draftMode()` are async in Next.js 16 — you must `await` them. Use the `PageProps` / `LayoutProps` helpers (generate via `npx next typegen`)
+- WHY: The sync access paths that were deprecated in Next.js 15 are fully removed in 16. Code that worked in 15 will crash in 16.
+
+**Next.js 16 — `middleware.ts` rename:**
+- WRONG: Assume the entrypoint must be `middleware.ts` and runs only on the Edge runtime
+- CORRECT: In Next.js 16 the file may be renamed to `proxy.ts`; it now runs on the Node.js runtime by default
+- WHY: LLMs trained on older Next.js hard-code `middleware.ts` and Edge-only constraints.
+
+**Next.js 16 — Turbopack is the default bundler:**
+- WRONG: Pass `--turbopack` flags, configure under `experimental.turbopack`, or add Webpack-style config for dev/build
+- CORRECT: Turbopack is the default for both `next dev` and `next build` in 16. Configure it via the top-level `turbopack` key in `next.config.ts`. The `--turbopack` flag is unnecessary and `experimental.turbopack` has been removed
+- WHY: LLMs still reference the experimental path from the 13/14/15 era.
+
+**Next.js 16 — runtime floor:**
+- WRONG: Scaffold with Node 18 or React 18
+- CORRECT: Next.js 16 requires Node.js 20.9+ (22 recommended), React 19.2+, and TypeScript 5+
+- WHY: LLMs default to older runtime assumptions and will silently produce projects that fail to boot.
 
 **Server vs. Client Components:**
 - WRONG: Add `'use client'` to every component, or use `useState`/`useEffect` in Server Components
