@@ -1,0 +1,40 @@
+{
+  "//": "Hooks は決定論的処理専用。LLM 判定 hook は作らない。<FORMAT_CMD> と拡張子はプロジェクトに合わせて置換。",
+  "permissions": {
+    "allow": [
+      "Bash(<test command>)",
+      "Bash(<lint command>)",
+      "Bash(<typecheck command>)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); cmd=$(printf '%s' \"$input\" | jq -r '.tool_input.command // \"\"'); if [[ \"$cmd\" =~ rm[[:space:]]+-[rRf]{2,}[[:space:]]+[/.~*] ]]; then printf '{\"decision\":\"block\",\"reason\":\"Destructive command blocked\"}'; exit 2; fi; if [[ \"$cmd\" =~ (mkfs|dd[[:space:]]+if=/dev/|chmod[[:space:]]+-R[[:space:]]+777) ]]; then printf '{\"decision\":\"block\",\"reason\":\"Destructive command blocked\"}'; exit 2; fi; if printf '%s' \"$cmd\" | grep -qiE '(DROP[[:space:]]+(TABLE|DATABASE)|TRUNCATE[[:space:]]+TABLE)'; then printf '{\"decision\":\"block\",\"reason\":\"Destructive SQL blocked\"}'; exit 2; fi; if [[ \"$cmd\" =~ (cat|less|head|tail|more)[[:space:]]+\\.env(\\.[a-z]|[[:space:]]|$) ]]; then printf '{\"decision\":\"block\",\"reason\":\".env read blocked\"}'; exit 2; fi; if [[ \"$cmd\" =~ git[[:space:]]+push.*--force([[:space:]]|$) ]] && ! [[ \"$cmd\" =~ --force-with-lease ]]; then printf '{\"decision\":\"block\",\"reason\":\"Force push blocked\"}'; exit 2; fi; if [[ \"$cmd\" =~ git[[:space:]]+.*--no-verify ]]; then printf '{\"decision\":\"block\",\"reason\":\"--no-verify blocked\"}'; exit 2; fi; exit 0",
+            "shell": "bash",
+            "timeout": 5,
+            "statusMessage": "Checking command safety..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); file_path=$(printf '%s' \"$input\" | jq -r '.tool_response.filePath // .tool_input.file_path // \"\"'); if [[ -n \"$file_path\" && \"$file_path\" =~ \\.(<対象拡張子 例: ts|tsx|js|jsx|json|css>)$ ]]; then cd \"$CLAUDE_PROJECT_DIR\" || exit 0; <FORMAT_CMD 例: pnpm biome check --fix> \"$file_path\" 2>&1; fi; exit 0",
+            "shell": "bash",
+            "timeout": 30,
+            "statusMessage": "Formatting..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+# Default: ignore everything (runtime data, history, credentials, caches)
+/*
+
+# Allowlist: version-controlled configuration only
+!/.gitignore
+!/CLAUDE.md
+!/agents/
+!/commands/
+!/hooks/
+!/skills/
+!/settings.json
+
+# Never commit local/secret overrides even if added later
+settings.local.json
+.credentials.json
+**/*.local.json
