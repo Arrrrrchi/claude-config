@@ -65,12 +65,25 @@ description: "Design the project-specific .claude layer on top of an already-ins
 - 取得失敗時は「訓練データに基づくため要検証」と警告し、`references/` テンプレートにフォールバック
 - **バージョン固有制約は検証必須**: `llm-pitfalls.md` 由来のバージョン依存事項（Next.js 16 / Tailwind v4 / Zod v4 等）を書くなら、公式 migration/changelog を確認してから書く。未検証なら**書かない**（推測でスタック制約を断定しない）
 
+### Step 4b: 内部事実の検証（必須）
+Step 4 が外部仕様を検証するのに対し、ここでは**コードベース内部の事実**を照合する。生成物に書く具体値は推測せず、必ず実体に当てる:
+- **パス・ファイル名・glob は実在確認してから書く** — `ls` / `find` / glob で確認。`app/api/auth` のような「ありそうな場所」を推測で書かない（実体が `app/auth` のことがある）。設定ファイル名も拡張子まで確認（`next.config.ts` ではなく `.mjs` 等）
+- **ドメイン用語・計算式は実装から写す** — ユーザーの口頭説明や一般論ではなく、該当ソース（`lib/domain/` 等）を読んで定義・式・単位を写す。実装と説明が食い違うときは断定せずユーザーに確認する
+- **スコープ glob は実使用を grep して導く** — 「概念的にここだろう」で paths を書かない。対象 API/シンボル（例: `cookies(` `headers(` `createClient` 等）を grep し、ヒットしたディレクトリを**漏れなく** paths に含める
+
 ### Step 5: プロジェクト層のみ生成
 検証済み仕様と `references/` テンプレートを使って生成する:
 - **`CLAUDE.md`** — `references/claude-md-template.md`（delta のみ。Workflow/Review 節は無い）
 - **`.claude/rules/*.md`** — `references/path-scoped-examples/`（db/test/ui）と `references/rules-examples/`（linting/commit）を雛形に、実 glob へ置換。1 ファイル 1 関心・各 30 行以内。グローバルと重複しない範囲で
 - **`.claude/settings.json`** — `references/settings-hooks-template.json`（`PostToolUse` フォーマッタ + `permissions.allow` のみ。汎用危険コマンドブロックは入れない）
 - **CI / pre-commit**（Tier 2/3）— `references/ci-cd-templates.md` / `references/pre-commit-templates.md`。既存があれば**拡張**、無ければ生成。プロバイダは1つだけ。各層は**スコープが違う同じツール**を使う: CI = full lint/test/typecheck、pre-commit = staged ファイルへの lint/format、Claude hook = 編集ファイルへの formatter/linter。同じ lint/format ツールを共有しつつ、full test/typecheck は CI のみ（pre-commit や hook に入れない＝遅くて回避される）
+
+### Step 5b: 自己レビュー（出力前の必須チェック）
+出力前に生成物を自己点検し、1つでも NG なら直してから Step 6 へ進む:
+- [ ] **すべての `.claude/rules/*.md` に `paths:` frontmatter があるか**（無いものは CLAUDE.md へ移すか paths を付ける）
+- [ ] **書いた全 paths / 許可パス / 設定ファイル名が実在するか**（Step 4b の確認結果と一致）
+- [ ] **ドメイン用語・計算式が実装と一致するか**
+- [ ] **CLAUDE.md と rules に同一制約のフル重複がないか**（正典は1か所、もう一方はポインタ）
 
 ### Step 6: 出力と説明
 - 各生成物の意図と、**グローバルハーネスとどう合成されるか**を説明
@@ -81,6 +94,9 @@ description: "Design the project-specific .claude layer on top of an already-ins
 - **「Do NOT use Y」は「use X」より効く** — LLM のミスを防ぐのは禁止形
 - **`@依存ファイル` で重複排除** — 依存ファイルから導ける内容は CLAUDE.md に書かない
 - **グローバルへの delta だけ書く** — 振る舞い・フロー・Review Matrix・agents はグローバルが所有。再掲は純粋なコスト
+- **すべての `.claude/rules/*.md` は `paths:` frontmatter で始める** — スコープが定まらない＝常時必要なら rule にせず CLAUDE.md に置く。db/test/ui 以外の rule を即興生成するときも frontmatter を省かない
+- **各事実の正典は1か所** — CLAUDE.md = 常時ロードの最小ガードレール＋「詳細は `.claude/rules/X.md`」ポインタ、rules = 詳細。同じ制約を両方にフル記述しない
+- **具体値は推測せず実体に当てる** — パス・ファイル名・glob・ドメイン式は Step 4b で実在/実装を確認してから書く
 - **hooks は決定論的処理のみ** — フォーマッタ/リンタ。LLM 判定 hook は作らない
 - **ライブ仕様が訓練データに優先** — Step 4 の取得が `references/` と矛盾したら取得結果が勝つ
 
