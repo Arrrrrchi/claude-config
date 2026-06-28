@@ -1,7 +1,7 @@
 # CI/CD Templates
 
-Read this file in Phase 4e when the chosen tier (Tier 2 or 3) requires CI/CD
-generation.
+Read this file during the generation step (SKILL.md Step 5) when the chosen
+tier (Tier 2 or 3) requires CI/CD generation.
 
 ## Table of Contents
 
@@ -202,7 +202,7 @@ test:
 
 ## Parameter Substitution
 
-Resolve these placeholders from Phase 1 data before writing the workflow.
+Resolve these placeholders from the project data gathered in Step 2 before writing the workflow.
 
 | Placeholder | Source |
 |------------|--------|
@@ -234,5 +234,5 @@ points in the workflow:
 All three layers must invoke the same commands. If they diverge, one layer
 passes while another fails — which erodes trust in the checks.
 
-In the Phase 5 summary, state explicitly: "lint and test are enforced at
+In the Step 6 output summary, state explicitly: "lint and test are enforced at
 three layers: pre-commit → Claude Code hook → CI".

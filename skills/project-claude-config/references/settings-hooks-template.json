@@ -1,0 +1,29 @@
+{
+  "//": "プロジェクト固有 .claude/settings.json テンプレート。決定論的処理のみ。LLM 判定 hook は作らない。",
+  "//danger": "危険コマンド/シークレット/force push/--no-verify などの汎用ガードは グローバル ~/.claude/settings.json(permissions.deny) と hooks/block-dangerous.mjs が所有する。ここには再配布しない（user/project でスコープが分かれ、重複・乖離するため）。",
+  "//format": "<FORMAT_CMD> と <対象拡張子> は当該プロジェクトの実フォーマッタ/リンタへ置換する（例: Biome なら `pnpm biome check --fix`、拡張子 ts|tsx|js|jsx|json|css）。プロジェクトの依存に無いツールの hook は入れない。この PostToolUse hook はグローバルの危険コマンドガード（block-dangerous.mjs / permissions.deny）を経由しないため、<FORMAT_CMD> には決定論的なフォーマッタ/リンタのみを置き、eval・任意 shell 片・ネットワーク取得を含めない。",
+  "//allow": "permissions.allow には そのプロジェクトで実際に使う読み取り/検証コマンドだけを最小で列挙する。",
+  "permissions": {
+    "allow": [
+      "Bash(<test command 例: pnpm test:run>)",
+      "Bash(<lint command 例: pnpm lint>)",
+      "Bash(<typecheck command 例: pnpm tsc --noEmit>)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); file_path=$(printf '%s' \"$input\" | jq -r '.tool_response.filePath // .tool_input.file_path // \"\"'); if [[ -n \"$file_path\" && \"$file_path\" =~ \\.(<対象拡張子 例: ts|tsx|js|jsx|json|css>)$ ]]; then [[ -n \"$CLAUDE_PROJECT_DIR\" ]] && cd \"$CLAUDE_PROJECT_DIR\" || exit 0; <FORMAT_CMD 例: pnpm biome check --fix> -- \"$file_path\" 2>&1; fi; exit 0",
+            "shell": "bash",
+            "timeout": 30,
+            "statusMessage": "Formatting..."
+          }
+        ]
+      }
+    ]
+  }
+}

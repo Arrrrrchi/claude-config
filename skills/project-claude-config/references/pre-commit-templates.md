@@ -1,7 +1,7 @@
 # Pre-commit Hook Templates
 
-Read this file in Phase 4f when the chosen tier (Tier 2 or 3) requires
-developer-side pre-commit hook setup.
+Read this file during the generation step (SKILL.md Step 5) when the chosen
+tier (Tier 2 or 3) requires developer-side pre-commit hook setup.
 
 ## Table of Contents
 
@@ -26,7 +26,7 @@ This is the **third layer** in a three-layer quality wall:
 
 1. **Claude Code hooks** (settings.json) — run after agent file edits
 2. **Git pre-commit hooks** — run before developer commits
-3. **CI** (Phase 4e) — run on push / PR
+3. **CI** (see `ci-cd-templates.md`) — run on push / PR
 
 All three must invoke the same lint and test commands. Divergence erodes
 trust.
@@ -50,7 +50,7 @@ rather than replace it.
 
 ## Husky + lint-staged (Node.js)
 
-### Install steps for the Phase 5 summary
+### Install steps for the Step 6 output summary
 
 ```bash
 {PKG_MGR} add -D husky lint-staged
@@ -166,7 +166,7 @@ Notes:
 | `{RUFF_VERSION}` | Latest ruff-pre-commit tag |
 | `{PRE_COMMIT_HOOKS_VERSION}` | Latest pre-commit-hooks tag |
 
-If a placeholder cannot be resolved from Phase 1 data, ask the user.
+If a placeholder cannot be resolved from the project data gathered in Step 2, ask the user.
 
 ---
 
