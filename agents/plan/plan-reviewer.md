@@ -41,9 +41,6 @@ color: blue
 ## 判定
 PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 
-## ブロッキング issue
-- なし / あり
-
 ## 指摘
 | severity | 該当箇所（計画の節/AC） | 問題 | なぜ重要か | 修正案 |
 |---|---|---|---|---|
@@ -58,4 +55,5 @@ yes / no
 - REQUEST_CHANGESは実装前に解決すべき問題がある場合に使用する
 - PASS_WITH_NOTESは着手可能だが注意事項がある場合に使用する
 - PASSは重要な問題が見つからなかった場合に使用する
+- critical / major はブロッキングとして 指摘 表に記載し REQUEST_CHANGES とする。minor は不足している考慮点へ記載する
 - 結果だけをメインスレッドへ返す

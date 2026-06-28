@@ -40,9 +40,6 @@ color: red
 ## 判定
 PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 
-## ブロッキング issue
-- なし / あり
-
 ## 指摘
 | severity | file | line | 問題 | なぜ重要か | 修正案 |
 |---|---|---|---|---|---|
@@ -56,5 +53,6 @@ yes / no
 
 - severityはcritical、major、minorのいずれかとする
 - データ漏洩、認可バイパス、重大な脆弱性はcriticalとする
+- critical / major はブロッキングとして 指摘 表に記載し REQUEST_CHANGES とする。minor は非ブロッキングメモへ記載する
 - 各指摘に攻撃経路、影響、根拠、修正方針を含める
 - 結果だけをメインスレッドへ返す

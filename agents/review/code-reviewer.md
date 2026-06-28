@@ -49,9 +49,6 @@ color: orange
 ## 判定
 PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 
-## ブロッキング issue
-- なし / あり
-
 ## 指摘
 | severity | file | line | 問題 | なぜ重要か | 修正案 |
 |---|---|---|---|---|---|
@@ -66,5 +63,6 @@ yes / no
 - REQUEST_CHANGESはブロッキングissueがある場合に使用する
 - PASS_WITH_NOTESは非ブロッキングの指摘だけがある場合に使用する
 - PASSは指摘がない場合に使用する
+- critical / major はブロッキングとして 指摘 表に記載し REQUEST_CHANGES とする。minor は非ブロッキングメモへ記載する
 - 各指摘に再現可能な条件または具体的なコード経路を含める
 - 結果だけをメインスレッドへ返す

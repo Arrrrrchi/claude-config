@@ -33,12 +33,26 @@ color: pink
 
 ## 出力形式
 
-各指摘に以下を含めてください。
+```md
+## 判定
+PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 
-- 重要度
-- 対象ファイルと行番号
-- 関係する指標（LCP・INP・CLS）
-- 問題が発生する仕組み
-- 修正方針
+## 指摘
+| severity | file | line | 指標 | 問題 | なぜ重要か | 修正案 |
+|---|---|---|---|---|---|---|
 
-結果だけをメインスレッドへ返してください。
+## 非ブロッキングメモ
+- なし / ...
+
+## 再レビュー要否
+yes / no
+```
+
+- severityはcritical、major、minorのいずれかとする
+- 指標はLCP、INP、CLSのいずれかを記載する
+- REQUEST_CHANGESはブロッキングissueがある場合に使用する
+- PASS_WITH_NOTESは非ブロッキングの指摘だけがある場合に使用する
+- PASSは指摘がない場合に使用する
+- critical / major はブロッキングとして 指摘 表に記載し REQUEST_CHANGES とする。minor は非ブロッキングメモへ記載する
+- 実測がない場合は影響を断定せず、可能性として明示する
+- 結果だけをメインスレッドへ返す

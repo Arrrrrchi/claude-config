@@ -62,9 +62,6 @@ git diff --cached --name-only   # ステージ済みの有無
 ## 判定
 PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 
-## ブロッキング issue
-- なし / あり
-
 ## 指摘
 | severity | file | line | 問題 | なぜ重要か | 修正案 |
 |---|---|---|---|---|---|
@@ -77,6 +74,7 @@ yes / no
 
 - severityはcritical、major、minorのいずれかとする。
 - REQUEST_CHANGESはブロッキングissueがある場合、PASS_WITH_NOTESは非ブロッキングの指摘だけがある場合、PASSは指摘がない場合に使用する。
+- critical / major はブロッキングとして指摘表に記載しREQUEST_CHANGESとする。minorは非ブロッキングメモへ記載する。
 ```
 
 ### 3. 結果を返す
