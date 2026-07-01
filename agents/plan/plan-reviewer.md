@@ -4,7 +4,8 @@ description: >
   Codexを利用できない場合に、実装前の計画をClaude単独でレビューする。
   受け入れ条件、スコープ、テスト可能性、依存関係、前提誤り、ロールバック方針を確認する。
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: opus
+effort: high
 permissionMode: plan
 color: blue
 ---
@@ -45,15 +46,16 @@ PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 | severity | 該当箇所（計画の節/AC） | 問題 | なぜ重要か | 修正案 |
 |---|---|---|---|---|
 
-## 不足している考慮点
+## 非ブロッキングメモ
 - ...
 
 ## 再レビュー要否
 yes / no
 ```
 
+- severityはcritical、major、minorのいずれかとする
 - REQUEST_CHANGESは実装前に解決すべき問題がある場合に使用する
 - PASS_WITH_NOTESは着手可能だが注意事項がある場合に使用する
 - PASSは重要な問題が見つからなかった場合に使用する
-- critical / major はブロッキングとして 指摘 表に記載し REQUEST_CHANGES とする。minor は不足している考慮点へ記載する
+- critical / major はブロッキングとして 指摘 表に記載し REQUEST_CHANGES とする。minor は非ブロッキングメモへ記載する
 - 結果だけをメインスレッドへ返す

@@ -3,12 +3,11 @@ name: cwv-reviewer
 description: >
   フロントエンドUIの差分をCore Web Vitals（LCP・INP・CLS）の観点でレビューする。
   ページ、コンポーネント、テンプレート、画像、CSS、フォント、クライアントサイドJavaScriptが対象。
-  通常のコードレビューに加えて積極的に使用する。
+  フロントエンドの差分が含まれる場合に、通常のコードレビューに加えて使用する。
 tools: Read, Glob, Grep, Bash
 skills:
   - cwv-review
-model: opus
-effort: high
+model: sonnet
 permissionMode: plan
 color: pink
 ---
@@ -38,8 +37,8 @@ color: pink
 PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 
 ## 指摘
-| severity | file | line | 指標 | 問題 | なぜ重要か | 修正案 |
-|---|---|---|---|---|---|---|
+| severity | file | line | 問題 | なぜ重要か | 修正案 |
+|---|---|---|---|---|---|
 
 ## 非ブロッキングメモ
 - なし / ...
@@ -49,7 +48,7 @@ yes / no
 ```
 
 - severityはcritical、major、minorのいずれかとする
-- 指標はLCP、INP、CLSのいずれかを記載する
+- 「問題」欄の先頭に `[LCP]` / `[INP]` / `[CLS]` のいずれかを付して指標を明示する
 - REQUEST_CHANGESはブロッキングissueがある場合に使用する
 - PASS_WITH_NOTESは非ブロッキングの指摘だけがある場合に使用する
 - PASSは指摘がない場合に使用する

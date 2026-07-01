@@ -15,7 +15,7 @@ color: orange
 
 ## レビュー対象
 
-指定されたファイル、差分、受け入れ条件を優先します。指定がなければ、ステージ済み変更と作業ツリーの差分を確認してください。
+指定されたファイル、差分、受け入れ条件を優先します。指定がなければ、ステージ済み変更と作業ツリーの差分を確認してください。どちらにも変更がなければ、ベースブランチ（main / master / develop）とHEADの差分を対象にしてください。
 
 ## レビュー観点
 
@@ -60,6 +60,7 @@ PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 yes / no
 ```
 
+- severityはcritical、major、minorのいずれかとする
 - REQUEST_CHANGESはブロッキングissueがある場合に使用する
 - PASS_WITH_NOTESは非ブロッキングの指摘だけがある場合に使用する
 - PASSは指摘がない場合に使用する

@@ -4,7 +4,7 @@ description: >
   DBスキーマ、migration、SQL、クエリ、データベース由来の型定義を含む差分をレビューする。
   データ整合性、移行の安全性、制約、インデックス、クエリ効率を確認するため、通常のコードレビューに加えて使用する。
 tools: Read, Grep, Glob, Bash
-model: opus
+model: fable
 effort: high
 permissionMode: plan
 color: green

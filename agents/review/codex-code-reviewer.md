@@ -22,8 +22,9 @@ git diff --name-only            # 変更の有無
 git diff --cached --name-only   # ステージ済みの有無
 ```
 
-- ステージ済み変更と作業ツリーの変更がどちらもなければ「レビュー対象なし」と返す
+- ステージ済み変更と作業ツリーの変更がどちらもなければ、ベースブランチ（`main`、無ければ`master`/`develop`）を特定し、`git merge-base <base> HEAD`との差分（`git diff <base>...HEAD`）をレビュー対象にする。それも空なら「レビュー対象なし」と返す
 - 指定されたファイル、差分、受け入れ条件があればCodexへのpromptに含める
+- Bashは`git rev-parse`・`git branch`・`git merge-base`・`git diff`系の読み取りにのみ使用する
 
 ### 2. Codexを起動する
 
@@ -33,9 +34,11 @@ git diff --cached --name-only   # ステージ済みの有無
 - `model`: 指定しない
 - `base-instructions`: 下記のレビュー指示を渡す
 - `prompt`:
-  > 現在の `git diff` と `git diff --cached` をレビューしてください。
+  > 次の差分をレビューしてください: <手順1で決定した差分（`git diff` / `git diff --cached` / `git diff <base>...HEAD`のいずれか）>。
   > 必要な関連ファイルをread-onlyで確認し、指定の形式で結果を返してください。
   > 受け入れ条件: <指定内容。なければ「指定なし」>
+
+この指示は `agents/review/code-reviewer.md` のレビュー観点・出力形式と同期を保つこと。片方を変更したらもう片方も更新する。
 
 ### レビュー指示
 
@@ -54,7 +57,6 @@ git diff --cached --name-only   # ステージ済みの有無
 ## 専門レビュアーに譲る観点（自分では深追いせず、追加起動が必要なら指摘に留める）
 - 認証・認可の詳細 → security-reviewer
 - SQL / migration / RLS / index → db-reviewer
-- パフォーマンス最適化 → performance-reviewer（あれば）
 - UIのLCP / INP / CLS → cwv-reviewer
 - プロジェクト固有のドメイン仕様 → プロジェクトのルール/レビュアー
 

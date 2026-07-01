@@ -31,6 +31,8 @@ color: purple
   > 次の実装計画を実装前にレビューしてください。計画: <パスまたは本文>。
   > 必要な関連ファイルをread-onlyで確認し、指定の形式で結果を返してください。
 
+この計画レビュー指示は `agents/plan/plan-reviewer.md` と同期を保つこと。
+
 ### 計画レビュー指示
 
 ```
@@ -54,7 +56,7 @@ PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 | severity | 該当箇所（計画の節/AC） | 問題 | なぜ重要か | 修正案 |
 |---|---|---|---|---|
 
-## 不足している考慮点
+## 非ブロッキングメモ
 - ...
 
 ## 再レビュー要否
@@ -62,7 +64,7 @@ yes / no
 
 - severityはcritical、major、minorのいずれかとする。
 - REQUEST_CHANGESは実装前に解決すべき問題がある場合、PASS_WITH_NOTESは着手可能だが注意事項がある場合、PASSは重要な問題がない場合に使用する。
-- critical / major はブロッキングとして指摘表に記載しREQUEST_CHANGESとする。minorは不足している考慮点へ記載する。
+- critical / major はブロッキングとして指摘表に記載しREQUEST_CHANGESとする。minorは非ブロッキングメモへ記載する。
 ```
 
 ### 3. 結果を返す

@@ -23,6 +23,7 @@ git rev-parse --show-toplevel   # リポジトリルート（= Codex の cwd）
 
 - 引数や文脈にある症状・エラー・失敗テスト・再現手順を整理し、Codexへのpromptに転記する
 - 調査対象（症状・再現手順）が一切示されていなければ、「調査対象が未指定」と返して終了する
+- Bashは`git rev-parse`にのみ使用する
 
 ### 2. Codexを起動する
 
@@ -36,6 +37,8 @@ git rev-parse --show-toplevel   # リポジトリルート（= Codex の cwd）
   > 症状・エラー・失敗テスト・再現手順: <整理した内容>
   > 必要な関連ファイルをread-onlyで確認し、read-onlyの診断コマンドで仮説を検証し、指定の形式で結果を返してください。
   > ソースコードや設定は編集しないでください。
+
+この調査指示は `agents/debug/debugger.md` と同期を保つこと。
 
 ### 調査指示
 
