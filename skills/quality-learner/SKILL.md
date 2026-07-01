@@ -1,6 +1,6 @@
 ---
 name: quality-learner
-description: "Learn from recurring code review findings and fold them back into the right layer so the same defect is not caught twice. Aligned with the global harness: general, cross-project defect classes are promoted into the global reviewer agents (~/.claude/agents/review/*.md — code-reviewer, security/db/cwv/solid), while project-specific defects are promoted into that project's .claude/rules/*.md or CLAUDE.md (the 'catch earlier' layer; there is no coder/planner agent because implementation is main-thread TDD and planning is plan mode). Use after a review session, after a PR cycle with multiple review rounds, or when the user says 'we keep getting the same feedback', 'update the reviewers based on recent reviews', 'learn from this review', or 'add this to the reviewer checklist'. Reads review history (git log, PR comments, recent chat), clusters recurring defect classes, and proposes concrete edits. Never edits agent or rule files without user confirmation."
+description: "Learn from recurring code review findings and fold them back into the right layer so the same defect is not caught twice. Aligned with the global harness: general, cross-project defect classes are promoted into the global reviewer agents (~/.claude/agents/review/*.md — code-reviewer, security/db/cwv/solid), while project-specific defects are promoted into that project's .claude/rules/*.md or CLAUDE.md (the 'catch earlier' layer; there is no coder/planner agent because implementation is main-thread TDD and planning is plan mode). Use after a review session, after a PR cycle with multiple review rounds, when the [[failure-log]] ledger (docs/failure-log.md) records the same defect class for the 2nd time, or when the user says 'we keep getting the same feedback', 'update the reviewers based on recent reviews', 'learn from this review', or 'add this to the reviewer checklist'. Reads review history (failure-log ledger, git log, PR comments, recent chat), clusters recurring defect classes, and proposes concrete edits. Never edits agent or rule files without user confirmation."
 ---
 
 # Quality Learner
@@ -58,6 +58,13 @@ Four sequential steps. Do not skip any.
 
 Collect the raw material to analyze. Prefer multiple sources:
 
+- **failure-log ledger (highest priority)** — read the project's
+  `docs/failure-log.md` (or `.claude/failure-log.md` if `docs/` does not
+  exist). This is written by the [[failure-log]] skill and already
+  contains structured entries with a `Should Update` classification
+  (global CLAUDE.md / project CLAUDE.md / rules / agent / skill / hook /
+  CI / tests) — reuse that classification directly as the promotion
+  target for Step 3 instead of re-deriving it
 - **Explicit user input** — if the user pastes review findings or names
   specific issues, use those directly
 - **Recent git log on the current branch** — `git log --oneline -30`

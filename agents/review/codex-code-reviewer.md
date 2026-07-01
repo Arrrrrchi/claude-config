@@ -22,9 +22,9 @@ git diff --name-only            # 変更の有無
 git diff --cached --name-only   # ステージ済みの有無
 ```
 
-- ステージ済み変更と作業ツリーの変更がどちらもなければ「レビュー対象なし」と返す
+- ステージ済み変更と作業ツリーの変更がどちらもなければ、ベースブランチ（`main`、無ければ`master`/`develop`）を特定し、`git merge-base <base> HEAD`との差分（`git diff <base>...HEAD`）をレビュー対象にする。それも空なら「レビュー対象なし」と返す
 - 指定されたファイル、差分、受け入れ条件があればCodexへのpromptに含める
-- Bashは`git rev-parse`と`git diff`系の読み取りにのみ使用する
+- Bashは`git rev-parse`・`git branch`・`git merge-base`・`git diff`系の読み取りにのみ使用する
 
 ### 2. Codexを起動する
 
@@ -34,7 +34,7 @@ git diff --cached --name-only   # ステージ済みの有無
 - `model`: 指定しない
 - `base-instructions`: 下記のレビュー指示を渡す
 - `prompt`:
-  > 現在の `git diff` と `git diff --cached` をレビューしてください。
+  > 次の差分をレビューしてください: <手順1で決定した差分（`git diff` / `git diff --cached` / `git diff <base>...HEAD`のいずれか）>。
   > 必要な関連ファイルをread-onlyで確認し、指定の形式で結果を返してください。
   > 受け入れ条件: <指定内容。なければ「指定なし」>
 

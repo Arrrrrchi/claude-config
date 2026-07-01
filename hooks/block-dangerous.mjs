@@ -1,17 +1,34 @@
 #!/usr/bin/env node
 // グローバル PreToolUse(Bash) 決定論ガード。全プロジェクトで発火する。
-// LLM 判定は一切しない（純粋な正規表現マッチのみ）。明確に危険な操作を Block する。
+// LLM 判定は一切しない（純粋な正規表現マッチ + カレントブランチ判定のみ）。明確に危険な操作を Block する。
 //   Block: exit 2 + decision:block で停止する。
 // 方針: git commit〜push〜PR 作成は承認不要。PR のマージはユーザーが最終判断するため Block する。
+// 追加方針: main/master ブランチ上での git push / git commit は、コマンド文字列に
+//   main/master が含まれない場合（bare `git push` 等）でも ask で確認する。
+//   コマンド文字列マッチだけでは「今どのブランチにいるか」を判定できず、
+//   bare push がガードを素通りする実例があったため。
 // permissions.deny と一部重複するが、二重の安全網として許容する。
 import { readFileSync } from "node:fs"
+import { execSync } from "node:child_process"
 
 const input = JSON.parse(readFileSync(0, "utf8"))
 const cmd = input?.tool_input?.command ?? ""
+const cwd = input?.cwd ?? process.cwd()
 
 const block = (reason) => {
   process.stdout.write(JSON.stringify({ decision: "block", reason }))
   process.exit(2)
+}
+
+const ask = (reason) => {
+  process.stdout.write(JSON.stringify({
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "ask",
+      permissionDecisionReason: reason,
+    },
+  }))
+  process.exit(0)
 }
 
 // --- Block: 明確に危険 ---
@@ -35,6 +52,19 @@ for (const [re, reason] of blockRules) {
 // force push は --force-with-lease のみ許可
 if (/git\s+push.*--force(\s|$)/.test(cmd) && !/--force-with-lease/.test(cmd)) {
   block("Force push をブロック（--force-with-lease を使う）")
+}
+
+// --- Ask: カレントブランチが main/master 上での push / commit ---
+// コマンド文字列に main/master が現れない場合（bare `git push` 等）を拾うための状態依存チェック。
+if (/git\s+push(\s|$)/.test(cmd) || /git\s+commit(\s|$)/.test(cmd)) {
+  try {
+    const branch = execSync("git branch --show-current", { cwd, encoding: "utf8" }).trim()
+    if (branch === "main" || branch === "master") {
+      ask(`カレントブランチ "${branch}" 上での ${/git\s+push/.test(cmd) ? "push" : "commit"} です。意図した操作か確認してください。`)
+    }
+  } catch {
+    // git 実行失敗（非 git ディレクトリ等）は安全側で素通し。block ルールが安全網として残る。
+  }
 }
 
 // git commit〜push〜PR 作成は承認不要のため Warn は設けない。
