@@ -64,7 +64,8 @@ Codex（MCP）が利用不可の場合、`@codex-code-reviewer` は `@code-revie
 |---|---|
 | 変更内容によらず必ず起動させる | `@codex-code-reviewer` |
 | 認証・認可・入力検証・admin・API・middleware・Gmail OAuth・シークレット | `@security-reviewer` |
+| 依存関係の追加・更新（package.json / lockfile）・CI/CDワークフロー・環境変数・設定ファイル | `@security-reviewer` |
 | DBスキーマ・マイグレーション・SQL・クエリ・データ変更層・ミューテーション層・DB型定義 | `@db-reviewer` |
 | フロントエンド UI・コンポーネント・画像・CSS・フォント | `@cwv-reviewer` |
 | 構造変更・新規モジュール・抽象化境界・ドメインロジック | `@solid-reviewer` |
-| コメント・ドキュメント・設定値のみ | レビュー省略可 |
+| コメント・ドキュメントのみ | レビュー省略可 |

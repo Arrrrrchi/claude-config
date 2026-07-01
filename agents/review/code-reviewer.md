@@ -60,6 +60,7 @@ PASS / PASS_WITH_NOTES / REQUEST_CHANGES
 yes / no
 ```
 
+- severityはcritical、major、minorのいずれかとする
 - REQUEST_CHANGESはブロッキングissueがある場合に使用する
 - PASS_WITH_NOTESは非ブロッキングの指摘だけがある場合に使用する
 - PASSは指摘がない場合に使用する
