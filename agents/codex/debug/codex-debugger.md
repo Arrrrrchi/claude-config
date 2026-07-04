@@ -38,7 +38,7 @@ git rev-parse --show-toplevel   # リポジトリルート（= Codex の cwd）
   > 必要な関連ファイルをread-onlyで確認し、read-onlyの診断コマンドで仮説を検証し、指定の形式で結果を返してください。
   > ソースコードや設定は編集しないでください。
 
-この調査指示は `agents/debug/debugger.md` と同期を保つこと。
+この調査指示は `agents/claude/debug/debugger.md` と同期を保つこと。
 
 ### 調査指示
 

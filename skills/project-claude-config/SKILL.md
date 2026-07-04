@@ -75,7 +75,7 @@ description: "Design the project-specific .claude layer on top of an already-ins
 ### Step 6: 出力と説明
 - 各生成物の意図と、**グローバルハーネスとどう合成されるか**を説明
 - 「ドラフトなので各プロジェクトの慣習に合わせ手直し必須」「反映には `/agents` 実行かセッション再起動が必要」と明記
-- hooks/permissions を生成した場合は、ユーザーに「実装後 `@security-reviewer` でガード重複・permission 過剰・コマンド注入を確認する」と促す
+- hooks/permissions を生成した場合は、ユーザーに「実装後 `@codex-security-reviewer` でガード重複・permission 過剰・コマンド注入を確認する（Codex利用不可時は `@security-reviewer`）」と促す
 
 ## 設計原則
 - **「Do NOT use Y」は「use X」より効く** — LLM のミスを防ぐのは禁止形

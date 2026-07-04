@@ -6,9 +6,14 @@
 !/CLAUDE.md
 !/agents/
 !/commands/
+!/docs/
 !/hooks/
 !/skills/
 !/settings.json
+
+# Track only the append-only failure ledger under docs
+/docs/*
+!/docs/failure-log.md
 
 # Never commit local/secret overrides even if added later
 settings.local.json

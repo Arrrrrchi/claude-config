@@ -38,7 +38,7 @@ git diff --cached --name-only   # ステージ済みの有無
   > 必要な関連ファイルをread-onlyで確認し、指定の形式で結果を返してください。
   > 受け入れ条件: <指定内容。なければ「指定なし」>
 
-この指示は `agents/review/code-reviewer.md` のレビュー観点・出力形式と同期を保つこと。片方を変更したらもう片方も更新する。
+この指示は `agents/claude/review/code-reviewer.md` のレビュー観点・出力形式と同期を保つこと。片方を変更したらもう片方も更新する。
 
 ### レビュー指示
 
@@ -55,9 +55,10 @@ git diff --cached --name-only   # ステージ済みの有無
 - 不要な差分、無関係な変更、過剰な抽象化（YAGNI）
 
 ## 専門レビュアーに譲る観点（自分では深追いせず、追加起動が必要なら指摘に留める）
-- 認証・認可の詳細 → security-reviewer
-- SQL / migration / RLS / index → db-reviewer
-- UIのLCP / INP / CLS → cwv-reviewer
+- 認証・認可の詳細 → codex-security-reviewer
+- SQL / migration / RLS / index → codex-db-reviewer
+- UIのLCP / INP / CLS → codex-cwv-reviewer
+- 構造変更・抽象化境界・ドメインロジック → codex-solid-reviewer
 - プロジェクト固有のドメイン仕様 → プロジェクトのルール/レビュアー
 
 ## レポート形式
