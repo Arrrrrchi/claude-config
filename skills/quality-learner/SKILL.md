@@ -1,6 +1,6 @@
 ---
 name: quality-learner
-description: "Learn from recurring code review findings and fold them back into the right layer so the same defect is not caught twice. Aligned with the global harness: general, cross-project defect classes are promoted into the global reviewer agents (~/.claude/agents/review/*.md — code-reviewer, security/db/cwv/solid), while project-specific defects are promoted into that project's .claude/rules/*.md or CLAUDE.md (the 'catch earlier' layer; there is no coder/planner agent because implementation is main-thread TDD and planning is plan mode). Use after a review session, after a PR cycle with multiple review rounds, when the [[failure-log]] ledger (docs/failure-log.md) records the same defect class for the 2nd time, or when the user says 'we keep getting the same feedback', 'update the reviewers based on recent reviews', 'learn from this review', or 'add this to the reviewer checklist'. Reads review history (failure-log ledger, git log, PR comments, recent chat), clusters recurring defect classes, and proposes concrete edits. Never edits agent or rule files without user confirmation."
+description: "Learn from recurring code review findings and fold them back into the right layer so the same defect is not caught twice. Aligned with the global harness: general, cross-project defect classes are promoted into the global reviewer agents (~/.claude/agents/claude/review/*.md — code-reviewer, security/db/cwv/solid), while project-specific defects are promoted into that project's .claude/rules/*.md or CLAUDE.md (the 'catch earlier' layer; there is no coder/planner agent because implementation is main-thread TDD and planning is plan mode). Use after a review session, after a PR cycle with multiple review rounds, when the [[failure-log]] ledger (docs/failure-log.md) records the same defect class for the 2nd time, or when the user says 'we keep getting the same feedback', 'update the reviewers based on recent reviews', 'learn from this review', or 'add this to the reviewer checklist'. Reads review history (failure-log ledger, git log, PR comments, recent chat), clusters recurring defect classes, and proposes concrete edits. Never edits agent or rule files without user confirmation."
 ---
 
 # Quality Learner
@@ -25,11 +25,11 @@ main-thread TDD; planning is plan mode). So the promotion targets are:
 
 | Defect kind | Promote to | Why |
 |---|---|---|
-| **General / cross-project** defect class (type safety, error handling, test quality, perf, generic correctness) | Global `~/.claude/agents/review/code-reviewer.md` checklist | Every project benefits; the reviewer should catch it everywhere |
-| Auth / authz / input validation | Global `~/.claude/agents/review/security-reviewer.md` | Same, security-scoped |
-| DB schema / migration / SQL / N+1 | Global `~/.claude/agents/review/db-reviewer.md` | Same, data-layer-scoped |
-| a11y / CLS / LCP / image / CSS / font | Global `~/.claude/agents/review/cwv-reviewer.md` | Same, frontend-scoped |
-| SRP / DRY / abstraction boundary | Global `~/.claude/agents/review/solid-reviewer.md` | Same, design-scoped |
+| **General / cross-project** defect class (type safety, error handling, test quality, perf, generic correctness) | Global `~/.claude/agents/claude/review/code-reviewer.md` checklist | Every project benefits; the reviewer should catch it everywhere |
+| Auth / authz / input validation | Global `~/.claude/agents/claude/review/security-reviewer.md` | Same, security-scoped |
+| DB schema / migration / SQL / N+1 | Global `~/.claude/agents/claude/review/db-reviewer.md` | Same, data-layer-scoped |
+| a11y / CLS / LCP / image / CSS / font | Global `~/.claude/agents/claude/review/cwv-reviewer.md` | Same, frontend-scoped |
+| SRP / DRY / abstraction boundary | Global `~/.claude/agents/claude/review/solid-reviewer.md` | Same, design-scoped |
 | **Project-specific** defect (tied to this repo's stack, domain, or paths) | That project's `.claude/rules/*.md` (path-scoped) or `CLAUDE.md` Constraints | Catches it at implementation time; keeps global reviewers free of per-project noise |
 
 **Decision rule:** promote to the **global reviewer** only when the defect
@@ -43,7 +43,7 @@ reviews with stack-specific noise.
 
 ## Preconditions
 
-- Global reviewer agents exist at `~/.claude/agents/review/*.md`
+- Global reviewer agents exist at `~/.claude/agents/claude/review/*.md`
   (`code-reviewer.md` + specialists). These ship with the harness.
 - For project-specific promotions, the target project should have a
   `.claude/` (or be willing to gain one). If it lacks a project config,
@@ -73,8 +73,8 @@ Collect the raw material to analyze. Prefer multiple sources:
 - **Open PR comments** — `gh pr view <N> --comments` and
   `gh api repos/OWNER/REPO/pulls/N/comments` for inline review comments
 - **Recent chat context** — if the current session contains reviewer
-  reports (`@codex-code-reviewer` / `@code-reviewer` and specialists),
-  use them
+  reports (`@codex-code-reviewer` / `@code-reviewer` and the corresponding
+  `@codex-<specialist>-reviewer` / `@<specialist>-reviewer` pairs), use them
 
 Normalize each finding into a short record:
 
@@ -114,11 +114,15 @@ For each cluster, record:
 For each cluster that clears the threshold, draft concrete edits to the
 target chosen by the decision rule above:
 
-1. **Global reviewer** (`~/.claude/agents/review/<reviewer>.md`) — for a
+1. **Global reviewer** (`~/.claude/agents/claude/review/<reviewer>.md`) — for a
    general defect class, add a bullet to the relevant checklist section.
    Pick the reviewer by the mapping table (security → security-reviewer,
    DB → db-reviewer, a11y/CWV → cwv-reviewer, design → solid-reviewer,
-   else code-reviewer). Write the check in imperative form.
+   else code-reviewer). Write the check in imperative form. When the
+   reviewer has a corresponding
+   `~/.claude/agents/codex/review/codex-<reviewer>.md`, include the same
+   review check in its embedded Codex instructions so the Claude and Codex
+   variants remain synchronized.
 
 2. **Project rule / CLAUDE.md** — for a project-specific defect, add a
    bullet to the most relevant `.claude/rules/*.md` (path-scoped) in the
@@ -172,7 +176,7 @@ Evidence gathered: N findings from <sources>
 Clusters identified: M (threshold: 2+ occurrences or 1+ Critical/High)
 
 ### Applied
-- <defect class> (general): ~/.claude/agents/review/<reviewer>.md
+- <defect class> (general): ~/.claude/agents/claude/review/<reviewer>.md
 - <defect class> (project-specific): <project>/.claude/rules/<file>.md
 
 ### Skipped

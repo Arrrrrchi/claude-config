@@ -61,17 +61,23 @@
 
 ### Review Matrix
 差分が複数領域にまたがる場合は該当レビュアーを**並列で起動する**
-Codex（MCP）が利用不可の場合、`@codex-code-reviewer` は `@code-reviewer`、`@codex-plan-reviewer` は `@plan-reviewer` にフォールバックする
+Codex（MCP）が利用不可の場合は、対応するClaude自力版へフォールバックする:
+- `@codex-code-reviewer` → `@code-reviewer`
+- `@codex-plan-reviewer` → `@plan-reviewer`
+- `@codex-security-reviewer` → `@security-reviewer`
+- `@codex-db-reviewer` → `@db-reviewer`
+- `@codex-cwv-reviewer` → `@cwv-reviewer`
+- `@codex-solid-reviewer` → `@solid-reviewer`
 
 | 変更内容 | 起動するもの |
 |---|---|
 | 変更内容によらず必ず起動させる | `@codex-code-reviewer` |
-| 認証・認可・入力検証・admin・API・middleware・Gmail OAuth・シークレット | `@security-reviewer` |
-| 依存関係の追加・更新（package.json / lockfile）・CI/CDワークフロー・環境変数・設定ファイル | `@security-reviewer` |
-| DBスキーマ・マイグレーション・SQL・クエリ・データ変更層・ミューテーション層・DB型定義 | `@db-reviewer` |
-| フロントエンド UI・コンポーネント・画像・CSS・フォント | `@cwv-reviewer` |
-| 構造変更・新規モジュール・抽象化境界・ドメインロジック | `@solid-reviewer` |
-| コメント・ドキュメント・設定値のみ | レビュー省略可 |
+| 認証・認可・入力検証・admin・API・middleware・Gmail OAuth・シークレット | `@codex-security-reviewer` |
+| 依存関係の追加・更新（package.json / lockfile）・CI/CDワークフロー・環境変数・設定ファイル | `@codex-security-reviewer` |
+| DBスキーマ・マイグレーション・SQL・クエリ・データ変更層・ミューテーション層・DB型定義 | `@codex-db-reviewer` |
+| フロントエンド UI・コンポーネント・画像・CSS・フォント | `@codex-cwv-reviewer` |
+| 構造変更・新規モジュール・抽象化境界・ドメインロジック | `@codex-solid-reviewer` |
+| コメント・ドキュメントのみ | レビュー省略可 |
 
 ### Review Loop Rules
 - 再レビューは**指摘元のレビュアーのみ**起動する。ただし修正差分が上表の新しい行に該当した場合は、該当レビュアーも起動する

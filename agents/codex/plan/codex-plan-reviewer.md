@@ -31,7 +31,7 @@ color: purple
   > 次の実装計画を実装前にレビューしてください。計画: <パスまたは本文>。
   > 必要な関連ファイルをread-onlyで確認し、指定の形式で結果を返してください。
 
-この計画レビュー指示は `agents/plan/plan-reviewer.md` と同期を保つこと。
+この計画レビュー指示は `agents/claude/plan/plan-reviewer.md` と同期を保つこと。
 
 ### 計画レビュー指示
 
