@@ -125,10 +125,11 @@
       ]
     }
   },
-  "effortLevel": "max",
+  "effortLevel": "xhigh",
   "tui": "fullscreen",
   "theme": "dark-daltonized",
   "agentPushNotifEnabled": true,
+  "inputNeededNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true
 }
