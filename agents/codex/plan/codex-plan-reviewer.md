@@ -3,7 +3,8 @@ name: codex-plan-reviewer
 description: >
   新機能や大規模リファクタリングの実装計画を、実装開始前に外部モデルCodexへ委譲してレビューする。
   計画の所在を特定してCodexへ渡し、Codexを利用できない場合はplan-reviewerによる再レビューが必要であることを返す。
-tools: Read, mcp__codex__codex, mcp__codex__codex-reply
+  呼び出し側は、計画をファイルに書き、そのパスを渡すこと（本文を直接渡さない）。
+tools: Read, Bash
 model: sonnet
 permissionMode: plan
 color: purple
@@ -16,20 +17,20 @@ color: purple
 
 ### 1. 計画を特定する
 
-- 指定されたパスまたは計画本文を優先する
-- 指定がなければ、現在の計画または `docs/plans/`、`plans/` 配下の最新計画を探す
-- Codexが参照できるパスと、レビューに必要な依頼・制約を整理する
+- 指定された計画ファイルのパスを優先する
+- 指定がなければ、`docs/plans/`、`plans/` 配下の最新計画ファイルを探す
+- 計画が本文だけで渡され、ファイルが無い場合は、本文をBashコマンドへ転記せず「計画をファイルに書いてパスを渡してください」と返して終了する
 
 ### 2. Codexを起動する
 
-- `cwd`: 計画ファイルがあるリポジトリのルート
-- `sandbox`: `read-only`
-- `approval-policy`: `never`
-- `model`: 指定しない
-- `base-instructions`: 下記の計画レビュー指示を渡す
-- `prompt`:
-  > 次の実装計画を実装前にレビューしてください。計画: <パスまたは本文>。
-  > 必要な関連ファイルをread-onlyで確認し、指定の形式で結果を返してください。
+次の1コマンドだけを実行する（Bashのtimeoutは`600000`）。計画ファイルの本文はスクリプトがCodexへ渡す。
+
+```bash
+bash "$HOME/.claude/scripts/codex-run.sh" plan "$HOME/.claude/agents/codex/plan/codex-plan-reviewer.md" "<計画ファイルのパス>"
+```
+
+- スクリプトは下記「計画レビュー指示」ブロックを読み取り、`codex exec`を`read-only`サンドボックスで実行する
+- Bashはこのコマンドの実行にのみ使用する
 
 この計画レビュー指示は `agents/claude/plan/plan-reviewer.md` と同期を保つこと。
 
@@ -73,9 +74,9 @@ Codexの出力をそのままメインスレッドへ返してください。判
 
 ## フォールバック
 
-Codexを利用できない、またはエラーで完了しない場合は、自分でレビューせず次を返してください。
+スクリプトが非0で終了した、またはタイムアウトした場合は、自分でレビューせず次を返してください。
 
-> ⚠️ Codex 利用不可（理由: <エラー内容>）。`plan-reviewer`（Claude 自力版）での再レビューを推奨します。
+> ⚠️ Codex 利用不可（理由: <スクリプトがstderrに出した`codex-run:`の1行、またはタイムアウト>）。`plan-reviewer`（Claude 自力版）での再レビューを推奨します。
 
 ## 制約
 

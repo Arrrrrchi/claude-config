@@ -3,7 +3,8 @@ name: codex-code-reviewer
 description: >
   重要なコード変更の完了後またはcommit・PRの前に、コード差分のレビューを外部モデルCodexへ委譲する。
   Git差分と受け入れ条件をCodexへ渡し、Codexを利用できない場合はcode-reviewerによる再レビューが必要であることを返す。
-tools: Bash, mcp__codex__codex, mcp__codex__codex-reply
+  呼び出し側は、受け入れ条件があればファイルに書き、そのパスを渡すこと（本文を直接渡さない）。
+tools: Bash
 model: sonnet
 permissionMode: plan
 color: purple
@@ -14,29 +15,21 @@ color: purple
 
 ## 手順
 
-### 1. レビュー対象を確認する
+### 1. 依頼ファイルを確認する
 
-```bash
-git rev-parse --show-toplevel   # リポジトリルート（= Codex の cwd）
-git diff --name-only            # 変更の有無
-git diff --cached --name-only   # ステージ済みの有無
-```
-
-- ステージ済み変更と作業ツリーの変更がどちらもなければ、ベースブランチ（`main`、無ければ`master`/`develop`）を特定し、`git merge-base <base> HEAD`との差分（`git diff <base>...HEAD`）をレビュー対象にする。それも空なら「レビュー対象なし」と返す
-- 指定されたファイル、差分、受け入れ条件があればCodexへのpromptに含める
-- Bashは`git rev-parse`・`git branch`・`git merge-base`・`git diff`系の読み取りにのみ使用する
+- 呼び出し側から受け入れ条件などを書いた依頼ファイルのパスが渡されていれば、それを使う。なければ省略する
+- 依頼の本文がファイルではなくプロンプトで直接渡された場合も、本文をBashコマンドへ転記しない（依頼ファイルなしで実行する）
 
 ### 2. Codexを起動する
 
-- `cwd`: 手順1で取得したリポジトリルート
-- `sandbox`: `read-only`
-- `approval-policy`: `never`
-- `model`: 指定しない
-- `base-instructions`: 下記のレビュー指示を渡す
-- `prompt`:
-  > 次の差分をレビューしてください: <手順1で決定した差分（`git diff` / `git diff --cached` / `git diff <base>...HEAD`のいずれか）>。
-  > 必要な関連ファイルをread-onlyで確認し、指定の形式で結果を返してください。
-  > 受け入れ条件: <指定内容。なければ「指定なし」>
+次の1コマンドだけを実行する（Bashのtimeoutは`600000`）。レビュー対象の差分（未追跡の新規ファイルを含む）はCodex自身が決める。
+
+```bash
+bash "$HOME/.claude/scripts/codex-run.sh" review "$HOME/.claude/agents/codex/review/codex-code-reviewer.md" "<依頼ファイルのパス（無ければ引数ごと省略）>"
+```
+
+- スクリプトは下記「レビュー指示」ブロックを読み取り、`codex exec`を`read-only`サンドボックスで実行する
+- Bashはこのコマンドの実行にのみ使用する
 
 この指示は `agents/claude/review/code-reviewer.md` のレビュー観点・出力形式と同期を保つこと。片方を変更したらもう片方も更新する。
 
@@ -86,9 +79,9 @@ Codexの出力をそのままメインスレッドへ返してください。判
 
 ## フォールバック
 
-Codexを利用できない、またはエラーで完了しない場合は、自分でレビューせず次を返してください。
+スクリプトが非0で終了した、またはタイムアウトした場合は、自分でレビューせず次を返してください。
 
-> ⚠️ Codex 利用不可（理由: <エラー内容>）。`code-reviewer`（Claude 自力版）での再レビューを推奨します。
+> ⚠️ Codex 利用不可（理由: <スクリプトがstderrに出した`codex-run:`の1行、またはタイムアウト>）。`code-reviewer`（Claude 自力版）での再レビューを推奨します。
 
 ## 制約
 
