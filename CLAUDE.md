@@ -45,7 +45,7 @@
 1. **Issue 確認** — 目的・受け入れ条件を把握する
 2. **ブランチの作成** — `feat/issue-<番号>-<短い説明>`
 3. **計画を立てる** — 後述の`Planning`に従う
-4. **計画の外部レビュー** — `@codex-plan-reviewer`（Codex MCP）で必ず外部検証を行う
+4. **計画の外部レビュー** — `@codex-plan-reviewer`（`codex exec`）で必ず外部検証を行う
 5. **ユーザー承認** - 計画を進めて良いかユーザーの承認を得る
 6. **TDD 実装** — 後述の`Implementation`に従う
 7. **レビュー** — 下表`Review Matrix`に従いレビュアーを起動し結果を報告させる
@@ -73,7 +73,8 @@
 
 ### Review Matrix
 差分が複数領域にまたがる場合は該当レビュアーを**並列で起動する**
-Codex（MCP）が利用不可の場合は、対応するClaude自力版へフォールバックする:
+Codex系エージェントへ受け入れ条件・計画・症状を渡すときは、本文をファイルに書いてパスを渡す（本文をBashコマンドに載せないため）
+Codex（`codex exec`）が利用不可の場合は、対応するClaude自力版へフォールバックする:
 - `@codex-code-reviewer` → `@code-reviewer`
 - `@codex-plan-reviewer` → `@plan-reviewer`
 - `@codex-security-reviewer` → `@security-reviewer`
