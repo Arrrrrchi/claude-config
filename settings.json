@@ -128,6 +128,7 @@
   "effortLevel": "xhigh",
   "tui": "fullscreen",
   "theme": "dark-daltonized",
+  "language": "japanese",
   "agentPushNotifEnabled": true,
   "inputNeededNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
