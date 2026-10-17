@@ -92,7 +92,7 @@
           },
           {
             "type": "command",
-            "command": "rtk-hook-custom"
+            "command": "rtk hook claude"
           }
         ]
       }
