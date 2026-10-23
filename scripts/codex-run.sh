@@ -34,9 +34,10 @@ if [ -n "$review_range" ]; then
   [ "$kind" = review ] || die 2 "差分の範囲は review だけで使える"
   # 範囲は Codex への指示文に入るので、形を限り、各端が実在するコミットかを確かめる
   # `a..b` か `a...b` だけを受け付ける（1つの参照だけだと `git diff HEAD` のように未コミットの変更を含むため）。
-  # 各端は `-` で始めない（git のオプションと読み違えないため）
-  printf '%s' "$review_range" | grep -Eq '^[A-Za-z0-9_/@^~][A-Za-z0-9._/@^~-]*\.\.\.?[A-Za-z0-9_/@^~][A-Za-z0-9._/@^~-]*$' \
-    || die 2 "差分の範囲の形が正しくない: ${review_range}"
+  # 各端は `-` で始めない（git のオプションと読み違えないため）。
+  # grep は1行ずつ照合し、改行の後ろを見ないので使わない。[[ =~ ]] は値の全体を1つの文字列として照合する
+  range_pattern='^[A-Za-z0-9_/@^~][A-Za-z0-9._/@^~-]*\.\.\.?[A-Za-z0-9_/@^~][A-Za-z0-9._/@^~-]*$'
+  [[ "$review_range" =~ $range_pattern ]] || die 2 "差分の範囲の形が正しくない: ${review_range}"
   range_sides="$(printf '%s' "$review_range" | sed -E 's/\.\.\.?/ /')"
   for side in $range_sides; do
     git rev-parse --verify --quiet "${side}^{commit}" >/dev/null || die 2 "差分の範囲のコミットが見つからない: ${side}"
