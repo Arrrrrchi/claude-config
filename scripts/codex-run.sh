@@ -2,7 +2,10 @@
 # Codex 系サブエージェント（agents/codex/**）から Codex を非対話で1回実行する共通ランナー。
 # codex mcp-server は Codex CLI v0.154.0 で削除されたため、codex exec を read-only で呼ぶ。
 #
-# 使い方: codex-run.sh <review|plan|debug> <エージェント定義.md> [依頼ファイル]
+# 使い方: codex-run.sh <review|plan|debug> <エージェント定義.md> [依頼ファイル] [差分の範囲]
+#   - 差分の範囲（review だけ。例 main...HEAD、705720b..HEAD）を渡すと、Codex はその `git diff` だけをレビューする。
+#     依頼ファイルは「信頼できないデータ」として渡すので、範囲を依頼ファイルに書いても効かない。必ずこの引数で渡す。
+#     依頼ファイルが無いときは、3つ目に空文字 "" を渡す
 #   - 定義.md の「### ...指示」見出し直後のコードフェンスを Codex への指示として使う
 #   - 依頼本文（受け入れ条件・計画・症状）はファイルで受け取り、コマンド文字列には載せない
 #     （heredoc 区切りの衝突と、Bash フックによる本文の誤検知を避けるため）
@@ -12,6 +15,7 @@ set -u
 kind="${1:-}"
 agent_md="${2:-}"
 request_file="${3:-}"
+review_range="${4:-}"
 
 die() { echo "codex-run: $2" >&2; exit "$1"; }
 
@@ -25,6 +29,18 @@ if [ -n "$request_file" ] && [ ! -f "$request_file" ]; then
 fi
 if [ "$kind" = debug ] && [ -z "$request_file" ]; then
   die 3 "調査対象が未指定（症状・再現手順を書いた依頼ファイルが必要）"
+fi
+if [ -n "$review_range" ]; then
+  [ "$kind" = review ] || die 2 "差分の範囲は review だけで使える"
+  # 範囲は Codex への指示文に入るので、形を限り、各端が実在するコミットかを確かめる
+  # `a..b` か `a...b` だけを受け付ける（1つの参照だけだと `git diff HEAD` のように未コミットの変更を含むため）。
+  # 各端は `-` で始めない（git のオプションと読み違えないため）
+  printf '%s' "$review_range" | grep -Eq '^[A-Za-z0-9_/@^~][A-Za-z0-9._/@^~-]*\.\.\.?[A-Za-z0-9_/@^~][A-Za-z0-9._/@^~-]*$' \
+    || die 2 "差分の範囲の形が正しくない: ${review_range}"
+  range_sides="$(printf '%s' "$review_range" | sed -E 's/\.\.\.?/ /')"
+  for side in $range_sides; do
+    git rev-parse --verify --quiet "${side}^{commit}" >/dev/null || die 2 "差分の範囲のコミットが見つからない: ${side}"
+  done
 fi
 # 依頼本文はパイプへ流す前に読み切る（読み取り失敗を見逃して不完全な依頼で成功しないため）
 request_body=""
@@ -42,11 +58,18 @@ instructions="$(awk '
 
 case "$kind" in
   review)
+    if [ -n "$review_range" ]; then
+      task="上記の指示に従って差分をレビューしてください。レビュー対象は \`git diff ${review_range}\` の差分だけとする。
+作業ツリーの未コミットの変更と未追跡ファイルは、この範囲に含まれないので対象外（読まない・判定に使わない）。
+レポートの冒頭に、実際にレビューした範囲（${review_range}）を1行で書くこと。
+必要な関連ファイルを read-only で確認し、指定の形式で結果を返してください。"
+    else
     task='上記の指示に従って差分をレビューしてください。レビュー対象は次の順で自分で決定すること。
 1. `git diff HEAD` の差分と、`git ls-files --others --exclude-standard` が列挙する未追跡ファイル（本文も読む）。どちらかがあればこれを対象とする
 2. 1が空なら、ベースブランチ（main、無ければ master、develop の順）との `git diff <base>...HEAD`
 3. それも空なら「レビュー対象なし」とだけ返す
-必要な関連ファイルを read-only で確認し、指定の形式で結果を返してください。' ;;
+必要な関連ファイルを read-only で確認し、指定の形式で結果を返してください。'
+    fi ;;
   plan)
     task='上記の指示に従って、依頼内容に示された実装計画を実装前にレビューしてください。
 必要な関連ファイルを read-only で確認し、指定の形式で結果を返してください。' ;;

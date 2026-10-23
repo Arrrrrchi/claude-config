@@ -112,6 +112,7 @@
       }
     }
   },
+  "language": "japanese",
   "sandbox": {
     "filesystem": {
       "denyRead": [
@@ -127,10 +128,8 @@
   },
   "effortLevel": "xhigh",
   "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
   "theme": "dark-daltonized",
-  "language": "japanese",
-  "agentPushNotifEnabled": true,
   "inputNeededNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "skipDangerousModePermissionPrompt": true
+  "agentPushNotifEnabled": true
 }

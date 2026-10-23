@@ -4,6 +4,7 @@ description: >
   フロントエンドUIの差分をCore Web Vitals（LCP・INP・CLS）の観点で外部モデルCodexへレビュー委譲する。
   Git差分をCodexへ渡し、Codexを利用できない場合はcwv-reviewerによる再レビューが必要であることを返す。
   呼び出し側は、受け入れ条件があればファイルに書き、そのパスを渡すこと（本文を直接渡さない）。
+  コミット済みの差分を見せるときは、差分の範囲（例 main...HEAD）をプロンプトで渡すこと。依頼ファイルに書いても効かない（依頼ファイルは信頼できないデータとして渡すため）。
 tools: Bash
 model: sonnet
 permissionMode: plan
@@ -23,10 +24,13 @@ color: purple
 
 ### 2. Codexを起動する
 
-次の1コマンドだけを実行する（Bashのtimeoutは`600000`）。レビュー対象の差分（未追跡の新規ファイルを含む）はCodex自身が決める。
+次の1コマンドだけを実行する（Bashのtimeoutは`600000`）。
+
+- 呼び出し側のプロンプトが差分の範囲（例 `main...HEAD`、`705720b..HEAD`）を指定していれば、4つ目の引数に渡す。依頼ファイルが無いときは、3つ目に空文字 `""` を渡す。範囲の形と実在はスクリプトが確かめる
+- 範囲の指定が無ければ4つ目を省く。このとき、レビュー対象の差分（未コミットの変更と未追跡の新規ファイル、無ければベースブランチとの差分）はCodex自身が決める
 
 ```bash
-bash "$HOME/.claude/scripts/codex-run.sh" review "$HOME/.claude/agents/codex/review/codex-cwv-reviewer.md" "<依頼ファイルのパス（無ければ引数ごと省略）>"
+bash "$HOME/.claude/scripts/codex-run.sh" review "$HOME/.claude/agents/codex/review/codex-cwv-reviewer.md" "<依頼ファイルのパス（無ければ空文字）>" "<差分の範囲（無ければ引数ごと省略）>"
 ```
 
 - スクリプトは下記「Core Web Vitalsレビュー指示」ブロックを読み取り、`codex exec`を`read-only`サンドボックスで実行する
