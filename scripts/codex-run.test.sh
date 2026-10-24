@@ -126,5 +126,61 @@ chmod 600 "$UNREADABLE"
 FAKE_MODE=ok run bogus "$AGENT"; rc=$?
 check "未知の種別で非0" $([ $rc -ne 0 ]; echo $?)
 
+# --- 差分の範囲（4つ目の引数）。コミットが2つある一時リポジトリの中で動かす ---
+REPO="$WORK/repo"
+mkdir -p "$REPO"
+(
+  cd "$REPO" || exit 1
+  git init -q
+  git -c user.name=t -c user.email=t@example.com commit -q --allow-empty -m first
+  git branch base/first
+  git -c user.name=t -c user.email=t@example.com commit -q --allow-empty -m second
+)
+run_in() { # run_in <フォルダ> <引数...>
+  local dir="$1"; shift
+  rm -f "$WORK/args" "$WORK/stdin"
+  (cd "$dir" && PATH="$FAKE_BIN:$BASE_PATH" bash "$SUT" "$@" >"$WORK/stdout" 2>"$WORK/stderr")
+}
+
+# R1: 2点の範囲。その差分だけを見る指示にし、未コミット・未追跡を対象にする指示は出さない
+FAKE_MODE=ok run_in "$REPO" review "$AGENT" "" 'HEAD~1..HEAD'; rc=$?
+check "R1 2点の範囲で exit 0" $([ $rc -eq 0 ]; echo $?)
+check "R1 指示に git diff <範囲> を入れる" $(grep -qF 'git diff HEAD~1..HEAD' "$WORK/stdin"; echo $?)
+check "R1 レビューした範囲を書かせる" $(grep -qF '実際にレビューした範囲（HEAD~1..HEAD）' "$WORK/stdin"; echo $?)
+check "R1 未追跡ファイルを対象にする指示は出さない" $(! grep -q 'git ls-files --others' "$WORK/stdin"; echo $?)
+
+# R2: 3点の範囲と、/ を含むブランチ名
+FAKE_MODE=ok run_in "$REPO" review "$AGENT" "" 'base/first...HEAD'; rc=$?
+check "R2 3点の範囲（/ を含む名前）で exit 0" $([ $rc -eq 0 ]; echo $?)
+check "R2 指示に git diff <範囲> を入れる" $(grep -qF 'git diff base/first...HEAD' "$WORK/stdin"; echo $?)
+
+# R3: 範囲は依頼ファイルと一緒にも渡せる
+FAKE_MODE=ok run_in "$REPO" review "$AGENT" "$REQ" 'HEAD~1..HEAD'; rc=$?
+check "R3 依頼ファイルと範囲を両方渡せる" $([ $rc -eq 0 ] && grep -qF 'DROP TABLE users;' "$WORK/stdin"; echo $?)
+
+# R4: 形の正しくない値は exit 2 で断り、Codex を呼ばない
+nl=$'\n'
+for bad in 'HEAD' 'HEAD..' '..HEAD' '-x..HEAD' 'HEAD..-x' 'HEAD..HEAD;id' 'HEAD .. HEAD' \
+  'HEAD..HEAD`id`' 'HEAD..$(id)' "HEAD~1..HEAD${nl}HEAD" "HEAD~1..HEAD${nl}"; do
+  FAKE_MODE=ok run_in "$REPO" review "$AGENT" "" "$bad"; rc=$?
+  check "R4 形の正しくない範囲を断る: $(printf '%q' "$bad")" $([ $rc -eq 2 ] && [ ! -e "$WORK/args" ]; echo $?)
+done
+
+# R5: 実在しない参照・点が多すぎる値は断る
+for bad in 'nosuch..HEAD' 'HEAD..nosuch' 'HEAD~1....HEAD'; do
+  FAKE_MODE=ok run_in "$REPO" review "$AGENT" "" "$bad"; rc=$?
+  check "R5 実在しない範囲を断る: $bad" $([ $rc -eq 2 ] && [ ! -e "$WORK/args" ]; echo $?)
+done
+
+# R6: review 以外の種別では範囲を受け付けない
+FAKE_MODE=ok run_in "$REPO" plan "$AGENT" "$REQ" 'HEAD~1..HEAD'; rc=$?
+check "R6 plan で範囲を渡すと exit 2" $([ $rc -eq 2 ] && [ ! -e "$WORK/args" ]; echo $?)
+
+# R7: git のリポジトリの外では、範囲の参照を確かめられないので断る
+NOREPO="$WORK/norepo"
+mkdir -p "$NOREPO"
+FAKE_MODE=ok run_in "$NOREPO" review "$AGENT" "" 'HEAD~1..HEAD'; rc=$?
+check "R7 リポジトリの外で範囲を渡すと exit 2" $([ $rc -eq 2 ] && [ ! -e "$WORK/args" ]; echo $?)
+
 echo "pass=$pass fail=$fail"
 [ "$fail" -eq 0 ]
