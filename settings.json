@@ -75,6 +75,12 @@
           {
             "type": "command",
             "command": "terminal-notifier -title 'Claude Code' -message 'タスクが完了しました' -sound default"
+          },
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/japanese-reply-check.mjs\"",
+            "shell": "bash",
+            "timeout": 5
           }
         ]
       }
