@@ -56,6 +56,9 @@
       "/Users/kenta/.claude/skills"
     ]
   },
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "60"
+  },
   "model": "sonnet",
   "hooks": {
     "Notification": [
